@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Grafana Link Generator</title>
+    <style>
+        body {
+            width: 300px;
+            font-family: Arial, sans-serif;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        a {
+            color: blue;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<h2>Запросы и ссылки на Grafana</h2>
+<table id="requestsTable">
+    <thead>
+    <tr>
+        <th>URL</th>
+        <th>Request ID</th>
+        <th>Grafana Link</th>
+    </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<script src="popup.js"></script>
+</body>
+</html>
