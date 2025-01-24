@@ -45,8 +45,14 @@ document.addEventListener('DOMContentLoaded', function() {
 	// Добавляем обработчик для кнопки очистки истории
 	document.getElementById('clearButton').addEventListener('click', function() {
 		chrome.storage.local.remove(['requests'], function() {
-			alert('История запросов очищена.');
 			location.reload(); // Перезагружаем страницу для обновления таблицы
+			const saveButton = document.getElementById('clearButton');
+			saveButton.innerHTML = 'История очищена !';
+			saveButton.style.backgroundColor = '#28a745';
+			setTimeout(() => {
+				saveButton.innerHTML = 'Очистить историю';
+				saveButton.style.backgroundColor = '#1da1f2';
+			}, 2000);
 		});
 	});
 

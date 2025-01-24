@@ -25,7 +25,13 @@ document.addEventListener('DOMContentLoaded', function() {
 			orgId: orgId,
 			template: template
 		}, function() {
-			alert('Настройки сохранены.');
+			const saveButton = document.getElementById('saveButton');
+			saveButton.innerHTML = 'Сохранено!';
+			saveButton.style.backgroundColor = '#28a745';
+			setTimeout(() => {
+				saveButton.innerHTML = 'Сохранить';
+				saveButton.style.backgroundColor = '#1da1f2';
+			}, 2000);
 		});
 	});
 });
