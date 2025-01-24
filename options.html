@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+<head>
+    <title>Настройки Grafana Link Generator</title>
+    <style>
+        body {
+            width: 400px;
+            font-family: Arial, sans-serif;
+            padding: 10px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input[type="text"], input[type="url"] {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 15px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<h2>Настройки Grafana Link Generator</h2>
+<label for="headerName">Имя заголовка:</label>
+<input type="text" id="headerName" placeholder="request-id">
+<label for="headerName">Идентификатор источника данных в Grafana:</label>
+<input type="text" id="datasource" >
+
+<label for="headerName">Организация:</label>
+<input type="text" id="orgId" placeholder="1">
+
+<label for="grafanaDomain">Домен Grafana:</label>
+<input type="url" id="grafanaDomain" placeholder="Домен Grafana">
+
+<label for="template">Шаблон:</label>
+<input type="text" id="template" placeholder='{} |= ``'>
+
+<button id="saveButton">Сохранить</button>
+<script src="options.js"></script>
+</body>
+</html>
