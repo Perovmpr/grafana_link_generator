@@ -45,9 +45,28 @@ chrome.webRequest.onCompleted.addListener(
 
 			// Получаем список всех сохраненных запросов из локального хранилища браузера
 			chrome.storage.local.get([ 'requests' ], function (result) {
+				// Извлекаем путь из URL
+				let path = '';
+				try {
+					const urlObj = new URL(details.url);
+					path = urlObj.pathname + urlObj.search;
+				} catch (e) {
+					path = details.url;
+				}
+
 				// Добавляем новый запрос в список
 				let requests = result.requests || [];
-				requests.push({ url: details.url, requestId: capturedId, grafanaLink, linkType, timestamp: new Date().toISOString() });
+				requests.push({
+					url: details.url,
+					path: path,
+					method: details.method,
+					statusCode: details.statusCode,
+					responseTime: new Date(details.timeStamp).toISOString(),
+					requestId: capturedId,
+					grafanaLink,
+					linkType,
+					timestamp: new Date().toISOString()
+				});
 				// Сохраняем обновленный список запросов обратно в локальное хранилище браузера
 				chrome.storage.local.set({ requests });
 			});

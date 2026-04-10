@@ -5,7 +5,7 @@
     <title>Grafana Link Generator</title>
     <style>
         body {
-            width: 600px;
+            width: 750px;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             padding: 10px;
             background-color: #f5f8fa;
@@ -15,6 +15,7 @@
             font-size: 20px;
             font-weight: bold;
             color: #1da1f2;
+            margin: 0 0 5px 0;
         }
         a {
             color: #1da1f2;
@@ -25,13 +26,12 @@
         }
         button {
             padding: 5px 10px;
-            margin-top: 10px;
             cursor: pointer;
             background-color: #1da1f2;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 12px;
         }
         button:hover {
             background-color: #0d95e8;
@@ -39,14 +39,14 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
             background-color: white;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
         }
         th, td {
-            padding: 12px 15px;
+            padding: 10px 12px;
             text-align: left;
             border-bottom: 1px solid #e1e8ed;
             word-wrap: break-word;
@@ -54,17 +54,30 @@
         th {
             background-color: #f5f8fa;
             font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+        th:hover {
+            background-color: #e1e8ed;
+        }
+        th.sort-asc::after {
+            content: ' ▲';
+            font-size: 10px;
+        }
+        th.sort-desc::after {
+            content: ' ▼';
+            font-size: 10px;
         }
         td:first-child {
-            max-width: 150px;
+            max-width: 200px;
         }
         .copy-button {
             background-color: #1da1f2;
             color: white;
             border: none;
             border-radius: 4px;
-            padding: 5px 10px;
-            font-size: 14px;
+            padding: 3px 8px;
+            font-size: 11px;
         }
         .copy-button:hover {
             background-color: #0d95e8;
@@ -73,7 +86,7 @@
             display: inline-block;
             padding: 3px 8px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: bold;
             color: white;
         }
@@ -83,25 +96,349 @@
         .badge-tempo {
             background-color: #9775f9;
         }
+        .pin-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 8px;
+            margin: 0;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .pin-button:hover {
+            background-color: #5a6268;
+        }
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .header-actions a {
+            margin-right: 10px;
+        }
+        #domainTitle {
+            font-size: 13px;
+            font-weight: normal;
+            color: #6c757d;
+            display: block;
+        }
+        .method-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            font-family: monospace;
+            color: white;
+            margin-right: 4px;
+        }
+        .method-get { background-color: #61affe; }
+        .method-post { background-color: #49cc90; }
+        .method-put { background-color: #fca130; }
+        .method-delete { background-color: #f93e3e; }
+        .method-patch { background-color: #50e3c2; }
+        .method-default { background-color: #6c757d; }
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        .status-2xx { background-color: #49cc90; color: white; }
+        .status-3xx { background-color: #61affe; color: white; }
+        .status-4xx { background-color: #fca130; color: white; }
+        .status-5xx { background-color: #f93e3e; color: white; }
+        .status-default { background-color: #6c757d; color: white; }
+        .time-cell {
+            font-family: monospace;
+            font-size: 11px;
+            color: #6c757d;
+        }
+        .path-text {
+            font-family: monospace;
+            font-size: 11px;
+            word-break: break-all;
+        }
+        .link-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .link-cell a {
+            font-size: 11px;
+        }
+        .link-cell button {
+            padding: 2px 6px;
+            margin: 0;
+            font-size: 10px;
+        }
+
+        /* Панель фильтров */
+        .filters-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        }
+        .filters-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .filter-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #6c757d;
+            min-width: 60px;
+        }
+        .filter-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            user-select: none;
+            transition: all 0.15s ease;
+            opacity: 0.4;
+        }
+        .filter-chip:hover {
+            opacity: 0.7;
+        }
+        .filter-chip.active {
+            opacity: 1;
+            border-color: #1da1f2;
+        }
+        .filter-chip .close-btn {
+            margin-left: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .filter-chip .close-btn:hover {
+            color: #f93e3e;
+        }
+        .chip-status-2xx { background-color: #49cc90; color: white; }
+        .chip-status-3xx { background-color: #61affe; color: white; }
+        .chip-status-4xx { background-color: #fca130; color: white; }
+        .chip-status-5xx { background-color: #f93e3e; color: white; }
+        .chip-method-get { background-color: #61affe; color: white; }
+        .chip-method-post { background-color: #49cc90; color: white; }
+        .chip-method-put { background-color: #fca130; color: white; }
+        .chip-method-delete { background-color: #f93e3e; color: white; }
+        .chip-method-patch { background-color: #50e3c2; color: white; }
+        .chip-method-default { background-color: #6c757d; color: white; }
+        #searchInput {
+            flex: 1;
+            min-width: 150px;
+            padding: 5px 10px;
+            border: 1px solid #e1e8ed;
+            border-radius: 4px;
+            font-size: 12px;
+            outline: none;
+        }
+        #searchInput:focus {
+            border-color: #1da1f2;
+            box-shadow: 0 0 0 2px rgba(29,161,242,0.2);
+        }
+        .clear-filters-btn {
+            background: none;
+            color: #f93e3e;
+            border: none;
+            padding: 3px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .clear-filters-btn:hover {
+            background-color: #fce4e4;
+        }
+        .clear-filters-btn:disabled {
+            color: #adb5bd;
+            cursor: default;
+        }
+        .clear-filters-btn:disabled:hover {
+            background-color: transparent;
+        }
+        .active-filters-bar {
+            display: none;
+            padding: 6px 10px;
+            background-color: #e8f4fd;
+            border-radius: 4px;
+            font-size: 11px;
+            align-items: center;
+            gap: 6px;
+        }
+        .active-filters-bar.visible {
+            display: flex;
+        }
+        .active-filters-bar .label {
+            font-weight: bold;
+            color: #1da1f2;
+        }
+        .active-filter-tag {
+            display: inline-flex;
+            align-items: center;
+            background-color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #1da1f2;
+            font-size: 10px;
+        }
+        .active-filter-tag .remove {
+            margin-left: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #f93e3e;
+        }
+        .results-count {
+            font-size: 11px;
+            color: #6c757d;
+        }
+        .clear-history-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 16px;
+            line-height: 1;
+            color: #6c757d;
+            transition: all 0.15s ease;
+            margin-left: auto;
+        }
+        .clear-history-btn:hover {
+            background-color: #fce4e4;
+            color: #f93e3e;
+        }
+        /* Подсветка новых записей */
+        @keyframes newRowFade {
+            0% { background-color: #d4edda; }
+            50% { background-color: #e8f4fd; }
+            100% { background-color: transparent; }
+        }
+        .row-new {
+            animation: newRowFade 4s ease-out forwards;
+        }
+        /* Выпадающее меню закрепления */
+        .pin-dropdown {
+            position: absolute;
+            top: 36px;
+            right: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            min-width: 180px;
+            overflow: hidden;
+        }
+        .pin-dropdown.visible {
+            display: block;
+        }
+        .pin-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            color: #14171a;
+            transition: background-color 0.1s;
+        }
+        .pin-dropdown-item:hover {
+            background-color: #f5f8fa;
+        }
+        .pin-dropdown-item .icon {
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <h2>Запросы и ссылки на Grafana</h2>
-    <a href="#" id="settingsLink">Настройки</a>
-    <button id="clearButton">Очистить историю</button>
+    <span id="domainTitle"></span>
+    <div class="header-actions">
+        <div>
+            <a href="#" id="settingsLink">Настройки</a>
+        </div>
+        <div style="position: relative;">
+            <button id="pinButton" class="pin-button" title="Открыть в новой вкладке или окне">📌</button>
+            <div id="pinDropdown" class="pin-dropdown">
+                <button class="pin-dropdown-item" id="pinTab">
+                    <span class="icon">📑</span>
+                    <span>Новая вкладка</span>
+                </button>
+                <button class="pin-dropdown-item" id="pinWindow">
+                    <span class="icon">🪟</span>
+                    <span>Новое окно</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Панель фильтров: одна строка -->
+    <div class="filters-panel">
+        <div class="filters-row">
+            <span class="filter-label">Метод:</span>
+            <span class="filter-chip chip-method-get" data-method="GET">GET</span>
+            <span class="filter-chip chip-method-post" data-method="POST">POST</span>
+            <span class="filter-chip chip-method-put" data-method="PUT">PUT</span>
+            <span class="filter-chip chip-method-delete" data-method="DELETE">DELETE</span>
+            <span class="filter-chip chip-method-patch" data-method="PATCH">PATCH</span>
+            <span id="clearMethodFilter" class="clear-filters-btn" style="display:none;">✕</span>
+
+            <input type="text" id="searchInput" placeholder="🔍 Поиск..." style="max-width: 200px;">
+
+            <span class="filter-label">Статус:</span>
+            <span class="filter-chip chip-status-2xx" data-status="2xx">2xx</span>
+            <span class="filter-chip chip-status-3xx" data-status="3xx">3xx</span>
+            <span class="filter-chip chip-status-4xx" data-status="4xx">4xx</span>
+            <span class="filter-chip chip-status-5xx" data-status="5xx">5xx</span>
+            <span id="clearStatusFilter" class="clear-filters-btn" style="display:none;">✕</span>
+
+            <button id="clearButton" class="clear-history-btn" title="Очистить историю">🗑️</button>
+        </div>
+        <!-- Активные фильтры -->
+        <div id="activeFiltersBar" class="active-filters-bar">
+            <span class="label">Фильтры:</span>
+            <span id="activeFiltersList"></span>
+        </div>
+    </div>
+
     <table id="requestsTable">
         <thead>
             <tr>
-                <th>URL</th>
-                <th>ID</th>
-                <th>Тип</th>
-                <th>Grafana Link</th>
-                <th>Действия</th>
+                <th id="sortRequest" data-sort="request">Запрос</th>
+                <th id="sortStatus" data-sort="status">Status</th>
+                <th id="sortTime" data-sort="time">Время</th>
+                <th>Ссылка</th>
             </tr>
         </thead>
         <tbody>
         </tbody>
     </table>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+        <span class="results-count" id="resultsCount"></span>
+    </div>
     <script src="popup.js"></script>
 </body>
 </html>
