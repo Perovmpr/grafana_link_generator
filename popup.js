@@ -12,9 +12,17 @@ document.addEventListener('DOMContentLoaded', function() {
 			urlCell.textContent = request.url;
 			row.appendChild(urlCell);
 
-			const requestIdCell = document.createElement('td');
-			requestIdCell.textContent = request.requestId;
-			row.appendChild(requestIdCell);
+			const idCell = document.createElement('td');
+			idCell.textContent = request.requestId;
+			row.appendChild(idCell);
+
+			const typeCell = document.createElement('td');
+			const badge = document.createElement('span');
+			const linkType = request.linkType || 'loki';
+			badge.className = `badge badge-${linkType}`;
+			badge.textContent = linkType === 'tempo' ? 'Tempo' : 'Loki';
+			typeCell.appendChild(badge);
+			row.appendChild(typeCell);
 
 			const grafanaLinkCell = document.createElement('td');
 			const link = document.createElement('a');

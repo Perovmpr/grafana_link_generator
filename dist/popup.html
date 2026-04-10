@@ -69,22 +69,8 @@
         .copy-button:hover {
             background-color: #0d95e8;
         }
-        .badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-        }
-        .badge-loki {
-            background-color: #ff9900;
-        }
-        .badge-tempo {
-            background-color: #9775f9;
-        }
     </style>
-</head>
+<script defer src="popup.bundle.js"></script></head>
 <body>
     <h2>Запросы и ссылки на Grafana</h2>
     <a href="#" id="settingsLink">Настройки</a>
@@ -93,8 +79,7 @@
         <thead>
             <tr>
                 <th>URL</th>
-                <th>ID</th>
-                <th>Тип</th>
+                <th>Request ID</th>
                 <th>Grafana Link</th>
                 <th>Действия</th>
             </tr>
@@ -102,6 +87,6 @@
         <tbody>
         </tbody>
     </table>
-    <script src="popup.js"></script>
+    <script src="popup.bundle.js"></script>
 </body>
 </html>

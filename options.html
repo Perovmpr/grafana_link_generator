@@ -47,16 +47,45 @@
 </head>
 <body>
 <h2>Настройки Grafana Link Generator</h2>
-<label for="headerName">Имя заголовка:</label>
-<input type="text" id="headerName" placeholder="request-id">
-<label for="datasource">Идентификатор источника данных в Grafana:</label>
-<input type="text" id="datasource">
+
+<h3>Общие настройки</h3>
+<label for="mode">Режим работы:</label>
+<select id="mode">
+    <option value="loki">Loki (по request-id)</option>
+    <option value="tempo">Tempo (OpenTelemetry traces)</option>
+</select>
+
+<label for="grafanaDomain">Домен Grafana:</label>
+<input type="url" id="grafanaDomain" placeholder="https://grafana.example">
+
 <label for="orgId">Организация:</label>
 <input type="text" id="orgId" placeholder="1">
-<label for="grafanaDomain">Домен Grafana:</label>
-<input type="url" id="grafanaDomain" placeholder="Домен Grafana">
-<label for="template">Шаблон:</label>
-<input type="text" id="template" placeholder='{} |= ``'>
+
+<div id="lokiSettings">
+    <h3>Настройки Loki</h3>
+    <label for="headerName">Заголовок request ID:</label>
+    <input type="text" id="headerName" placeholder="request-id">
+    
+    <label for="datasource">UID источника данных Loki:</label>
+    <input type="text" id="datasource">
+    
+    <label for="template">Шаблон запроса Loki:</label>
+    <input type="text" id="template" placeholder='{requestId="%s"} |= ``'>
+</div>
+
+<div id="tempoSettings" style="display: none;">
+    <h3>Настройки Tempo (OpenTelemetry)</h3>
+    <label for="tempoDatasource">UID источника данных Tempo:</label>
+    <input type="text" id="tempoDatasource">
+    
+    <label for="traceIdHeader">Заголовок Trace ID:</label>
+    <input type="text" id="traceIdHeader" placeholder="traceparent">
+    <small>Стандарт W3C Trace Context: traceparent</small>
+    
+    <label for="spanIdHeader">Заголовок Span ID (опционально):</label>
+    <input type="text" id="spanIdHeader" placeholder="x-span-id">
+</div>
+
 <button id="saveButton">Сохранить</button>
 <script src="options.js"></script>
 </body>
