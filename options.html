@@ -77,14 +77,19 @@
     <h3>Настройки Tempo (OpenTelemetry)</h3>
     <label for="tempoDatasource">UID источника данных Tempo:</label>
     <input type="text" id="tempoDatasource">
-    
+
     <label for="traceIdHeader">Заголовок Trace ID:</label>
     <input type="text" id="traceIdHeader" placeholder="traceparent">
     <small>Стандарт W3C Trace Context: traceparent</small>
-    
+
     <label for="spanIdHeader">Заголовок Span ID (опционально):</label>
     <input type="text" id="spanIdHeader" placeholder="x-span-id">
 </div>
+
+<h3>Хранение данных</h3>
+<label for="historyTtl">Срок хранения истории (дней):</label>
+<input type="number" id="historyTtl" placeholder="1" value="1" min="1" max="365">
+<small>Записи старше указанного срока будут автоматически удалены</small>
 
 <button id="saveButton">Сохранить</button>
 <script src="options.js"></script>

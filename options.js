@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
 	// Загружаем текущие настройки из локального хранилища
-	chrome.storage.local.get(['mode', 'headerName', 'grafanaDomain', 'template', 'datasource', 'orgId', 'tempoDatasource', 'traceIdHeader', 'spanIdHeader'], function(items) {
+	chrome.storage.local.get(['mode', 'headerName', 'grafanaDomain', 'template', 'datasource', 'orgId', 'tempoDatasource', 'traceIdHeader', 'spanIdHeader', 'historyTtl'], function(items) {
 		document.getElementById('mode').value = items.mode || 'loki';
 		document.getElementById('headerName').value = items.headerName;
 		document.getElementById('grafanaDomain').value = items.grafanaDomain;
@@ -10,9 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
 		document.getElementById('tempoDatasource').value = items.tempoDatasource;
 		document.getElementById('traceIdHeader').value = items.traceIdHeader || 'traceparent';
 		document.getElementById('spanIdHeader').value = items.spanIdHeader || 'x-span-id';
+		document.getElementById('historyTtl').value = items.historyTtl || 1;
 
 		console.log(items);
-		
+
 		// Показываем/скрываем настройки в зависимости от режима
 		toggleSettingsVisibility(items.mode);
 	});
@@ -33,6 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		const tempoDatasource = document.getElementById('tempoDatasource').value;
 		const traceIdHeader = document.getElementById('traceIdHeader').value;
 		const spanIdHeader = document.getElementById('spanIdHeader').value;
+		const historyTtlValue = parseInt(document.getElementById('historyTtl').value, 10);
+		const historyTtl = isNaN(historyTtlValue) || historyTtlValue < 1 ? 1 : Math.min(365, historyTtlValue);
 
 		chrome.storage.local.set({
 			mode: mode,
@@ -43,7 +46,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			tempoDatasource: tempoDatasource,
 			traceIdHeader: traceIdHeader,
 			spanIdHeader: spanIdHeader,
-			template: template
+			template: template,
+			historyTtl: historyTtl
 		}, function() {
 			const saveButton = document.getElementById('saveButton');
 			saveButton.innerHTML = 'Сохранено!';

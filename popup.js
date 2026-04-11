@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
 		currentDomain = domainParam;
 		isPinned = true;
 		document.getElementById('domainTitle').textContent = `Домен: ${currentDomain}`;
-		document.getElementById('pinButton').style.display = 'none';
+		document.getElementById('pinTabBtn').style.display = 'none';
+		document.getElementById('pinWindowBtn').style.display = 'none';
 		refreshInterval = setInterval(loadRequests, 3000);
 		loadRequests();
 	} else {
@@ -259,6 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
 			return;
 		}
 
+		const now = new Date();
+
 		sorted.forEach(request => {
 			const row = document.createElement('tr');
 
@@ -301,7 +304,12 @@ document.addEventListener('DOMContentLoaded', function() {
 			const responseTime = request.responseTime || request.timestamp;
 			try {
 				const date = new Date(responseTime);
-				timeCell.textContent = date.toLocaleTimeString('ru-RU');
+				const isToday = date.getFullYear() === now.getFullYear()
+					&& date.getMonth() === now.getMonth()
+					&& date.getDate() === now.getDate();
+				timeCell.textContent = isToday
+					? date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+					: date.toLocaleString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 			} catch (e) {
 				timeCell.textContent = responseTime;
 			}
@@ -526,69 +534,66 @@ document.addEventListener('DOMContentLoaded', function() {
 	let clearFeedbackTimeout = null;
 	document.getElementById('clearButton').addEventListener('click', function() {
 		const clearButton = document.getElementById('clearButton');
-		chrome.storage.local.get(['requests'], function(result) {
-			const allStored = result.requests || [];
-			const filtered = currentDomain
-				? allStored.filter(req => {
-					try { return new URL(req.url).hostname !== currentDomain; }
-					catch (e) { return true; }
-				})
-				: [];
 
-			const finishClear = function() {
-				// Сбрасываем фильтры в JS
-				selectedStatuses.clear();
-				selectedMethods.clear();
-				searchQuery = '';
-				document.getElementById('searchInput').value = '';
-				document.querySelectorAll('.filter-chip[data-status]').forEach(c => c.classList.remove('active'));
-				document.querySelectorAll('.filter-chip[data-method]').forEach(c => c.classList.remove('active'));
-				document.getElementById('clearStatusFilter').style.display = 'none';
-				document.getElementById('clearMethodFilter').style.display = 'none';
+		const finishClear = function() {
+			// Сбрасываем фильтры в JS
+			selectedStatuses.clear();
+			selectedMethods.clear();
+			searchQuery = '';
+			document.getElementById('searchInput').value = '';
+			document.querySelectorAll('.filter-chip[data-status]').forEach(c => c.classList.remove('active'));
+			document.querySelectorAll('.filter-chip[data-method]').forEach(c => c.classList.remove('active'));
+			document.getElementById('clearStatusFilter').style.display = 'none';
+			document.getElementById('clearMethodFilter').style.display = 'none';
 
-				// Обновляем данные
-				allRequests = [];
-				updateChipVisibility();
+			// Обновляем данные
+			allRequests = [];
+			updateChipVisibility();
 
-				// Скрываем панель активных фильтров
-				document.getElementById('activeFiltersBar').classList.remove('visible');
-				document.getElementById('activeFiltersList').innerHTML = '';
+			// Скрываем панель активных фильтров
+			document.getElementById('activeFiltersBar').classList.remove('visible');
+			document.getElementById('activeFiltersList').innerHTML = '';
 
-				// Обновляем счётчик
-				document.getElementById('resultsCount').textContent = '';
+			// Обновляем счётчик
+			document.getElementById('resultsCount').textContent = '';
 
-				// Очищаем таблицу
-				const tableBody = document.querySelector('#requestsTable tbody');
-				tableBody.innerHTML = '';
-				const row = document.createElement('tr');
-				const cell = document.createElement('td');
-				cell.colSpan = 4;
-				cell.textContent = currentDomain
-					? `Нет запросов с домена ${currentDomain}`
-					: 'Нет доступных запросов';
-				cell.style.textAlign = 'center';
-				cell.style.color = '#6c757d';
-				row.appendChild(cell);
-				tableBody.appendChild(row);
+			// Очищаем таблицу
+			const tableBody = document.querySelector('#requestsTable tbody');
+			tableBody.innerHTML = '';
+			const row = document.createElement('tr');
+			const cell = document.createElement('td');
+			cell.colSpan = 4;
+			cell.textContent = currentDomain
+				? `Нет запросов с домена ${currentDomain}`
+				: 'Нет доступных запросов';
+			cell.style.textAlign = 'center';
+			cell.style.color = '#6c757d';
+			row.appendChild(cell);
+			tableBody.appendChild(row);
 
-				// Сохраняем пустые фильтры
-				saveFilterPreferences();
-			};
+			// Сохраняем пустые фильтры
+			saveFilterPreferences();
+		};
 
-			if (currentDomain) {
-				chrome.storage.local.set({ requests: filtered }, finishClear);
-			} else {
-				chrome.storage.local.remove(['requests'], finishClear);
+		// Отправляем сообщение в background.js для очистки + обновления domainIcons
+		chrome.runtime.sendMessage({
+			action: 'clearDomainHistory',
+			domain: currentDomain || null
+		}, function(response) {
+			if (chrome.runtime.lastError) {
+				console.error('Ошибка очистки истории:', chrome.runtime.lastError.message);
+				return;
 			}
-
-			clearFeedbackTimeout && clearTimeout(clearFeedbackTimeout);
-			clearButton.title = 'История очищена!';
-			clearButton.style.color = '#28a745';
-			clearFeedbackTimeout = setTimeout(() => {
-				clearButton.title = 'Очистить историю';
-				clearButton.style.color = '';
-			}, 2000);
+			finishClear();
 		});
+
+		clearFeedbackTimeout && clearTimeout(clearFeedbackTimeout);
+		clearButton.title = 'История очищена!';
+		clearButton.style.color = '#28a745';
+		clearFeedbackTimeout = setTimeout(() => {
+			clearButton.title = 'Очистить историю';
+			clearButton.style.color = '';
+		}, 2000);
 	});
 
 	// Настройки
@@ -597,22 +602,16 @@ document.addEventListener('DOMContentLoaded', function() {
 		chrome.runtime.openOptionsPage();
 	});
 
-	// Закрепление — выпадающее меню
-	const pinButton = document.getElementById('pinButton');
-	const pinDropdown = document.getElementById('pinDropdown');
+	// Кнопки открытия в новой вкладке/окне
+	const pinTabBtn = document.getElementById('pinTabBtn');
+	const pinWindowBtn = document.getElementById('pinWindowBtn');
 
-	pinButton.addEventListener('click', function(e) {
-		e.stopPropagation();
-		pinDropdown.classList.toggle('visible');
-	});
-
-	document.getElementById('pinTab').addEventListener('click', function() {
+	pinTabBtn.addEventListener('click', function() {
 		const url = currentDomain ? `popup.html?domain=${encodeURIComponent(currentDomain)}` : 'popup.html';
 		chrome.tabs.create({ url: url });
-		pinDropdown.classList.remove('visible');
 	});
 
-	document.getElementById('pinWindow').addEventListener('click', function() {
+	pinWindowBtn.addEventListener('click', function() {
 		const url = currentDomain ? `popup.html?domain=${encodeURIComponent(currentDomain)}` : 'popup.html';
 		const width = 780;
 		const height = 700;
@@ -628,14 +627,6 @@ document.addEventListener('DOMContentLoaded', function() {
 				top: top
 			});
 		});
-		pinDropdown.classList.remove('visible');
-	});
-
-	// Закрываем дропдаун при клике вне его
-	document.addEventListener('click', function(e) {
-		if (!pinDropdown.contains(e.target) && e.target !== pinButton) {
-			pinDropdown.classList.remove('visible');
-		}
 	});
 
 	window.addEventListener('beforeunload', function() {
